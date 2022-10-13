@@ -20,16 +20,45 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
-  }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
-  }
+    constructor(flag = true) {
+        this.flag = flag;
+        this.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    }
+    encrypt(message, key) {
+        if (!message || !key) { throw new Error("Incorrect arguments!"); }
+        let outputString = '';
+        let keylength = key.length;
+        let keyLetter = 0;
+        message = message.toUpperCase();
+        key = key.toUpperCase();
+        for (let i = 0; i < message.length; i += 1) {
+            if (this.alphabet.indexOf(message[i]) !== -1) {
+                outputString += this.alphabet[(this.alphabet.indexOf(message[i]) + this.alphabet.indexOf(key[keyLetter])) % 26];
+                keyLetter = (keyLetter + 1) % keylength;
+            } else { outputString += message[i]; }
+        }
+        return this.flag === true ? outputString : outputString.split('').reverse().join('');
+    }
+    decrypt(message, key) {
+        if (!message || !key) { throw new Error("Incorrect arguments!"); }
+        let outputString = '';
+        let keylength = key.length;
+        let keyLetter = 0;
+        message = message.toUpperCase();
+        key = key.toUpperCase();
+        for (let i = 0; i < message.length; i += 1) {
+            if (this.alphabet.indexOf(message[i]) !== -1) {
+
+                outputString += this.alphabet[(this.alphabet.indexOf(message[i]) - this.alphabet.indexOf(key[keyLetter]) + 26) % 26];
+                keyLetter = (keyLetter + 1) % keylength;
+            } else { outputString += message[i]; }
+        }
+        return this.flag === true ? outputString : outputString.split('').reverse().join('');
+    }
 }
 
+
 module.exports = {
-  VigenereCipheringMachine
+    VigenereCipheringMachine
 };
