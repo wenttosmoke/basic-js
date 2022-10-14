@@ -15,23 +15,66 @@ const { NotImplementedError } = require('../extensions/index.js');
  */
 function transform(arr) {
     if (Array.isArray(arr) !== true) { throw new Error("'arr' parameter must be an instance of the Array!"); }
+    console.log(arr);
     let discardPrev = '--discard-prev';
     let discardNext = '--discard-next';
     let doublePrev = '--double-prev';
     let doubleNext = '--double-next';
     let position = 0;
+    let outputPosition = 0;
     let outputArray = [];
-    let length = arr.length;
+    let multiple = 1;
+    let arr2 = Array.from(arr);
     let isFlag = false;
-    while (position < arr.length) {
-        (arr[position] === discardPrev) ? outputArray.splice(position - 1, 1): isFlag = true;
-        (arr[position] === doublePrev) ? outputArray[position - 1] *= 2: isFlag = true;
-        (arr[position] === doubleNext) ? outputArray[position + 1] *= 2: isFlag = true;
-        (arr[position] === discardNext) ? position += 1: isFlag = true;
-        if (isFlag === false) { outputArray[position] = arr[position]; } else { isFlag = false; }
+    while (position < arr2.length) {
+        if (typeof arr2[position] !== "number" && typeof arr2[position] !== "string" && arr2[position] !== discardNext &&
+            arr2[position] !== discardPrev && arr2[position] !== doubleNext && arr2[position] !== doublePrev && arr2[position] !== "control-set" &&
+            arr2[position] !== "removed") { return arr; }
+        if (arr2[position] === discardPrev) {
+
+            if (position !== 0 && arr2[position - 1] !== "control-set") {
+                arr2[position - 1] = "removed";
+                arr2[position] = "control-set";
+
+
+            } else { if (position === 0 || (position !== 0 && (arr2[position - 1] === "control-set" || arr2[position - 1] === "removed"))) { arr2[position] = "control-set"; } }
+        } else {
+            if (arr2[position] === doublePrev) {
+
+                if (position !== 0 && typeof arr2[position - 1] === "number") {
+                    arr2[position] = arr2[position - 1];
+
+                } else { if (position === 0 || (position !== 0 && (arr2[position - 1] === "control-set" || arr2[position - 1] === "removed"))) { arr2[position] = "control-set"; } }
+            } else {
+                if (arr2[position] === doubleNext) {
+
+                    if (position + 1 < arr2.length && typeof arr2[position + 1] === "number") {
+                        arr2[position] = arr2[position + 1];
+
+                    } else { if (position + 1 >= arr2.length || position + 1 < arr2.length && arr2[position + 1] !== "control-set") { arr2[position] = "control-set"; } }
+                } else {
+                    if (arr2[position] === discardNext) {
+
+                        if (position + 1 < arr2.length && typeof arr2[position + 1] === "number") {
+                            arr2[position + 1] = "control-set";
+
+
+                        } else { if (position + 1 >= arr2.length || position + 1 < arr2.length && arr2[position + 1] !== "control-set") { arr2[position] = "control-set"; } }
+                        arr2[position] = "control-set";
+
+                    }
+                }
+            }
+
+        }
+        position += 1;
 
     }
+
+    console.log(arr)
+    arr2.forEach(element => element !== "control-set" && element !== "removed" ? outputArray.push(element) : "");
     return outputArray;
+
 
 }
 module.exports = {
